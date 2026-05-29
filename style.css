@@ -1,0 +1,800 @@
+:root {
+    --bg-color: #FDFBF7;       
+    --primary-color: #4A6B5D;   
+    --accent-color: #D4A373;    
+    --text-color: #333D38;      
+    --white: #FFFFFF;
+    --border-color: #E2DDD5;    
+    --hover-color: #BE8F61;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.7;
+    font-size: 16px;
+    padding-top: 80px;
+}
+
+main {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.content-layout {
+    display: flex; 
+    gap: 30px; 
+}
+
+.main-content {
+    flex: 3; 
+    min-width: 0; 
+}
+
+
+/* Стиль для aside, чтобы он закреплялся при прокрутке */
+aside {
+    flex: 1; /* Сохраняем гибкость */
+    max-width: 300px; /* Ограничение ширины */
+    position: sticky; /* Главный триггер! */
+    top: 120px; /* Расстояние от верха (чуть ниже фиксированной шапки) */
+    /* Важно, чтобы элемент не сжимался и был блочным поведением */
+    align-self: flex-start; 
+}
+
+section {
+    background-color: var(--white);
+    padding: 40px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(74, 107, 93, 0.04);
+    border: 1px solid var(--border-color);
+}
+
+h1 {
+    color: var(--primary-color);
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+h2 {
+    color: var(--primary-color);
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+h3 {
+    color: var(--text-color);
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+}
+
+h4 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: var(--border-color);
+    margin: 40px 0;
+}
+
+header {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+header > div {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+header strong {
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    letter-spacing: 1px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+nav a, a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+nav a:hover, a:hover {
+    color: var(--accent-color);
+}
+
+
+fieldset {
+    border: none; 
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+legend {
+    font-weight: bold;
+    color: var(--primary-color);
+    display: block; 
+    padding: 10px 0;
+    margin-bottom: 5px;
+}
+
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    color: var(--text-color);
+    background-color: var(--white);
+}
+
+/* Убираем любые потенциально конфликтующие стили для .sidebar, если они остались. */
+.sidebar {
+    position: static !important; /* Гарантируем, что тут ничего не будет конфликтовать с aside */
+    max-width: none;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 107, 93, 0.1);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    margin-right: 8px;
+    transform: scale(1.1);
+    vertical-align: middle;
+}
+
+button, .btn {
+    background-color: var(--accent-color);
+    color: var(--white);
+    padding: 12px 28px;
+    border-radius: 25px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+    box-shadow: 0 3px 10px rgba(212, 163, 115, 0.2);
+}
+
+button:hover, .btn:hover {
+    background-color: var(--hover-color);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(212, 163, 115, 0.3);
+}
+
+button[type="reset"] {
+    background-color: transparent;
+    color: #777;
+    box-shadow: none;
+    font-weight: normal;
+}
+
+button[type="reset"]:hover {
+    background-color: #EEE;
+    color: #333;
+    transform: none;
+    box-shadow: none;
+}
+
+#bookingForm textarea[name="comment"] {
+    resize: none;
+}
+
+.feature-list {
+    display: flex; 
+    gap: 30px;     
+    list-style: none; 
+}
+
+.feature-card {
+    flex: 1;       
+    min-width: 250px; 
+    padding: 25px;
+    border-radius: 8px;
+    background-color: var(--bg-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.specialist-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-left: 0; 
+    list-style-type: none !important;
+}
+
+.expert-card {
+    padding: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #FFF;
+    display: flex;
+    align-items: center;
+    gap: 25px; 
+}
+
+.photo {
+    width: 100px;
+    height: 120px;
+    background-color: var(--border-color);
+    border-radius: 50%; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+}
+
+.expert-card h3 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.testimonial-card {
+    background-color: #F4F1EA;
+    padding: 30px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: var(--white);
+}
+
+th, td {
+    padding: 14px 18px;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
+
+th {
+    background-color: #F4F1EA;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: rgba(244, 241, 234, 0.3);
+}
+
+@media (max-width: 850px) {
+    .feature-list {
+        flex-direction: column; 
+    }
+}
+
+@media (max-width: 768px) {
+    body { padding-top: 140px; } 
+    header > div { flex-direction: column; text-align: center; }
+    main { margin: 20px auto; padding: 0 15px; }
+    section { padding: 20px; }
+
+    .expert-card, .feature-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .photo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .specialist-list, .specialist-navigation {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.hidden {
+    display: none !important; 
+}
+
+.specialist-card {
+    margin-bottom: 40px;
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.specialist-booking-trigger {
+    background-color: var(--accent-color); 
+    box-shadow: 0 3px 10px rgba(212, 163, 115, 0.2);
+}
+
+.specialist-card form label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.specialist-card form input[type="text"],
+.specialist-card form input[type="tel"],
+.specialist-card form input[type="email"],
+.specialist-card form textarea {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 98%;
+}
+
+.results-section .btn {
+    margin-right: 10px;
+}
+
+#quiz-form-container {
+    background-color: var(--white);
+    padding: 40px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+}
+
+#booking-modal {
+    display: none;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.modal-content {
+    background-color: var(--white);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 90%;
+    margin-top: 100px;
+    position: relative; 
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+    border: none;
+    background: none;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: var(--text-color);
+    outline: none;
+}
+
+.specialist-card {
+    margin-bottom: 30px;
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.specialist-card .btn {
+    margin-top: 15px !important;
+}
+
+.results-section ol li {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.results-section ol li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="tel"],
+.modal-content input[type="email"],
+.modal-content textarea {
+    display: block;
+    margin-top: 5px;
+}
+
+#booking-form input[type="text"],
+#booking-form input[type="tel"],
+#booking-form input[type="email"],
+#booking-form textarea {
+    width: 98%; 
+}
+
+#booking-modal {
+    display: none;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.modal-content {
+    background-color: var(--white);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 90%;
+    margin-top: 10vh;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    font-size: 40px;
+    font-weight: bold;
+    color: #aaa;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: var(--text-color);
+    outline: none;
+}
+
+#booking-form label {
+    display: block; 
+    margin-top: 15px; 
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 25px;
+}
+
+.page-title-block h1 {
+    margin-bottom: 5px;
+    font-size: 2rem;
+}
+
+.subtitle {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+.system-notification {
+    color: var(--primary-color);
+    font-weight: bold;
+    background: #E8F0EC;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 30px;
+}
+
+.expert-card {
+    background-color: var(--white);
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin-bottom: 30px; 
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.photo {
+    width: 100px;
+    height: 120px;
+    background-color: var(--border-color);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.details h3 {
+    margin: 0;
+}
+
+.tag-container {
+    margin-top: 15px !important; 
+    margin-bottom: 20px;
+}
+.tags-display strong {
+    color: var(--text-color);
+    display: block;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .expert-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+    .photo {
+        width: 150px;
+        height: 200px;
+    }
+
+    .specialist-booking-trigger {
+        align-self: center;
+        width: 100%;
+    }
+}
+
+#booking-modal {
+    display: none;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.modal-content {
+    background-color: var(--white);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 90%;
+    margin-top: 5vh;
+    position: relative; 
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    font-size: 40px;
+    font-weight: bold;
+    color: #aaa;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: var(--text-color); 
+    outline: none;
+}
+
+
+#bookingForm label {
+    display: block; 
+    margin-top: 15px; 
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.primary-action-btn {
+    background-color: var(--primary-color);
+    box-shadow: 0 3px 10px rgba(74, 107, 93, 0.2);
+}
+
+.primary-action-btn:hover {
+    background-color: var(--hover-color);
+    box-shadow: 0 5px 15px rgba(212, 163, 115, 0.4);
+}
+
+.specialty-info strong {
+    display: block;
+    margin-top: 8px;
+}
+
+.price-tag {
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   NEW: PAGINATION STYLES (Пагинация - Квадратный вид)
+   ========================================================================== */
+
+/* Общий контейнер для пагинации */
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Уменьшаем зазор для более плотного, "квадратного" вида */
+    padding: 20px 0;
+}
+
+/* Стилизация для всех кнопок страницы (ссылок) */
+.pagination-btn {
+    display: inline-block;
+    text-decoration: none;
+    color: var(--primary-color);
+    background-color: #f9f9f9; /* Светлый фон по умолчанию */
+    /* Изменения для более квадратного вида: */
+    padding: 10px 15px; 
+    border-radius: 4px; /* Уменьшен радиус скругления */
+    border: 1px solid var(--border-color); /* Используем мягкую границу */
+    transition: all 0.2s ease;
+    font-weight: 600; /* Сделали жирнее */
+}
+
+/* Активная страница (на которую пользователь сейчас находится) */
+.pagination-btn.active {
+    background-color: var(--primary-color) !important; 
+    color: var(--white) !important; 
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 5px rgba(74, 107, 93, 0.2); /* Добавили мягкую тень */
+}
+
+/* Состояние при наведении (для неактивных кнопок) */
+.pagination-btn:hover:not(.active) {
+    background-color: #e9ecef; 
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* Усиление эффекта при наведении */
+}
+
+/* Стилизация для блока "Всего специалистов" */
+.pagination small {
+    margin-right: 15px;
+    font-weight: normal;
+    color: var(--text-color);
+}
+
+
+@media (max-width: 768px) {
+    /* Адаптация пагинации для маленьких экранов */
+    .pagination {
+        gap: 5px; /* Уменьшаем зазор на мобильных */
+    }
+    .pagination-btn {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        /* На мобильных можно слегка уменьшить радиус, чтобы выглядело аккуратнее */
+        border-radius: 4px; 
+    }
+}
+
+/* Стилизация блока поиска */
+#search-block {
+    margin-bottom: 30px; /* Отступ от других фильтров */
+}
+
+#search-block input[type="text"] {
+    width: calc(100% - 24px); /* Ширина, минус padding/border* */
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+#search-block button {
+    width: 100%; /* Кнопка на всю ширину */
+    /* Используем стили, определенные для общих кнопок (button, .btn) */
+    margin-top: 15px !important; 
+}
+
+/* ==========================================================================
+   NEW: PAGINATION STYLES (Стилизация кнопок пагинации)
+   ========================================================================== */
+
+/* Общий контейнер для пагинации */
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Уменьшаем зазор между кнопками */
+    padding: 20px 0;
+}
+
+/* Стилизация для всех кнопок страницы (ссылок) */
+.pagination-btn {
+    display: inline-block;
+    text-decoration: none;
+    color: var(--primary-color);
+    background-color: #f9f9f9; /* Светлый фон по умолчанию, имитируя кнопку */
+    padding: 10px 15px; 
+    border-radius: 4px; /* Скругленные углы */
+    border: 1px solid var(--border-color); /* Граница для объема кнопки */
+    transition: all 0.2s ease;
+    font-weight: 600; /* Делаем текст более заметным */
+}
+
+/* Активная страница (на которую пользователь сейчас находится) - должна быть самой яркой кнопкой */
+.pagination-btn.active {
+    background-color: var(--primary-color) !important; 
+    color: var(--white) !important; 
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 5px rgba(74, 107, 93, 0.2); /* Тень для эффекта нажатия */
+}
+
+/* Состояние при наведении (для неактивных кнопок) */
+.pagination-btn:hover:not(.active) {
+    background-color: var(--accent-color); /* Можно сделать ярче при наведении */
+    color: var(--white); 
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(212, 163, 115, 0.3);
+}
+
+/* Адаптация пагинации для мобильных устройств */
+@media (max-width: 768px) {
+    .pagination {
+        gap: 5px; /* Уменьшаем зазор на мобильных */
+    }
+    .pagination-btn {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border-radius: 4px; 
+    }
+}
