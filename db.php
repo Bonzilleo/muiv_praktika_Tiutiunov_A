@@ -1,9 +1,9 @@
 <?php
 
 $host    = '127.0.0.1';
-$db      = 'harmony_db';
-$user    = 'root';       
-$pass    = '';           
+$db      = 'v91632ur_harmony';
+$user    = 'v91632ur_harmony';       
+$pass    = 'harmony_TAP_MUIV2026';           
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $user_role == 'Админ-поль�
                 $stmt_user->execute([$username, password_hash($password, PASSWORD_DEFAULT), 1]);
                 $last_user_id = $pdo->lastInsertId();
 
-                $success_message = '<div style="background-color: #e6ffe6; color: green; padding: 10px; border-radius: 5px;">✅ Администратор успешно создан! Логин: ' . htmlspecialchars($username) . '</div>';
+                $success_message = '<div style="background-color: #e6ffe6; color: green; padding: 10px; border-radius: 5px;">Администратор успешно создан! Логин: ' . htmlspecialchars($username) . '</div>';
             } catch (\PDOException $e) {
                 $message_error = '<div style="background-color: #ffe6e6; color: red; padding: 10px; border-radius: 5px;">Ошибка базы данных при создании администратора: ' . htmlspecialchars($e->getMessage()) . '</div>';
             }

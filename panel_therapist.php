@@ -11,7 +11,7 @@
     <div id="active-appointments-container">
         <?php try { ?>
             <!-- Запрос для активных заявок -->
-            <?php $active_sql = "SELECT * FROM Appointments WHERE therapist_id = :therapist_id AND status IN ('pending', 'confirmed') ORDER BY created_at ASC"; ?>
+            <?php $active_sql = "SELECT * FROM appointments WHERE therapist_id = :therapist_id AND status IN ('pending', 'confirmed') ORDER BY created_at ASC"; ?>
             <?php $stmt_active = $pdo->prepare($active_sql); ?>
             <?php $stmt_active->execute([':therapist_id' => $current_therapist_id]); ?>
             <?php $active_appointments = $stmt_active->fetchAll(); ?>
@@ -58,7 +58,7 @@
                 <p class="system-notification">В данный момент активных заявок нет. Ждем новых клиентов!</p>
             <?php endif; ?>
         <?php } catch (\PDOException $e) { ?>
-            <div style="color: red; background-color: #fee;">Ошибка загрузки АКТИВНЫХ заявок: <?= htmlspecialchars($e->getMessage()) ?></div>
+            <div style="color: red; background-color: #fee;">Ошибка загрузки активных заявок: <?= htmlspecialchars($e->getMessage()) ?></div>
         <?php } ?>
     </div>
 
@@ -66,7 +66,7 @@
     <div id="history-appointments-container" style="display: none;">
         <?php try { ?>
             <!-- Запрос для закрытых заявок -->
-            <?php $history_sql = "SELECT * FROM Appointments WHERE therapist_id = :therapist_id AND status IN ('completed', 'cancelled') ORDER BY created_at DESC"; ?>
+            <?php $history_sql = "SELECT * FROM appointments WHERE therapist_id = :therapist_id AND status IN ('completed', 'cancelled') ORDER BY created_at DESC"; ?>
             <?php $stmt_history = $pdo->prepare($history_sql); ?>
             <?php $stmt_history->execute([':therapist_id' => $current_therapist_id]); ?>
             <?php $history_appointments = $stmt_history->fetchAll(); ?>
@@ -96,7 +96,7 @@
                 <p class="system-notification">История заявок пока пуста.</p>
             <?php endif; ?>
         <?php } catch (\PDOException $e) { ?>
-            <div style="color: red; background-color: #fee;">Ошибка загрузки ИСТОРИИ заявок: <?= htmlspecialchars($e->getMessage()) ?></div>
+            <div style="color: red; background-color: #fee;">Ошибка загрузки истории заявок: <?= htmlspecialchars($e->getMessage()) ?></div>
         <?php } ?>
     </div>
 
