@@ -1,18 +1,28 @@
 <?php
 require_once 'db.php';
 
+$issues = [];
+try {
+    // Запрашиваем все ID и описания из таблицы issues
+    $stmt_issues = $pdo->query("SELECT id, description FROM issues ORDER BY description ASC");
+    $issues = $stmt_issues->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // В случае ошибки предотвращаем сбой работы формы
+    die("<div style='color: red;'>Ошибка при загрузке данных о проблематиках: " . htmlspecialchars($e->getMessage()) . "</div>");
+}
+
 $show_results = false;
 $top_three = [];
 
 try {
-    $sql = "SELECT id, name, role, gender, age_group, match_description, base_price, experience_years FROM therapists";
+    $sql = "SELECT id, name, role, gender, age, match_description, base_price, experience_years, image_path FROM therapists";
     $stmt = $pdo->query($sql);
     $therapists_database = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Вывести по каждому терапевту список проблем и возможных форматов проведения сеансов
     foreach ($therapists_database as $index => $therapist) {
         // Список проблем
-        $issues_stmt = $pdo->prepare("SELECT issue_tag FROM therapist_issues WHERE therapist_id = ?");
+        $issues_stmt = $pdo->prepare("SELECT issue_id FROM therapist_issues WHERE therapist_id = ?");
         $issues_stmt->execute([$therapist['id']]);
         $therapists_database[$index]['issues'] = $issues_stmt->fetchAll(PDO::FETCH_COLUMN);
 
@@ -60,9 +70,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Подсчитываем баллы за возраст специалиста
         if ($selected_age_group !== "any") {
             $max_score += 20;
-            if ($therapist['age_group'] === $selected_age_group) {
-                $score += 20;
+            if ($selected_age_group === 'young') {
+                $max_score += 20;
+                if ($therapist['age'] !== null && $therapist['age'] <= 35) {
+                    $score += 20;
+                }
+            } elseif ($selected_age_group === 'experienced') {
+                $max_score += 20;
+                if ($therapist['age'] !== null && $therapist['age'] > 35) {
+                    $score += 20;
+                }
             }
+
         }
 
         // Подсчитываем баллы за выбранный формат проведения сессии
@@ -106,29 +125,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body class="page-quiz">
 
-    <header>
-        <div>
-            <strong>ГАРМОНИЯ</strong>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Главная</a></li>
-                    <li><a href="specialists.php">Наши специалисты</a></li>
-                    <li><a href="prices.php">Услуги и цены</a></li>
-                    <li class="active-nav"><a href="quiz.php">Подбор психолога</a></li>
-                    <li><a href="blog.html">Блог</a></li>
-                    <li><a href="contacts.html">Контакты и FAQ</a></li>
-                    <li><a href="dashboard.html">Личный кабинет</a></li>
-                    <li><a href="sitemap.html">Карта сайта</a></li>
-                </ul>
-            </nav>
+    <?php include 'header.php'; ?>
+    <!-- Переключение режим доступности по ГОСТу-->
+    <div id="accessibility-widget" class="bvi-panel">
+        <div class="bvi-panel-container">
+            <button class="accessibility-toggle-btn" data-theme="gov-standard-switcher"
+                style="background: #eee; color: var(--text-color);">Настроить доступность</button>
+            <div id="theme-selection-container" class="bvi-panel-container" style="display: none;">
+                <span style="font-weight: 600; color: var(--text-color);">Выберите тему:</span>
+                <button class="theme-switcher" data-theme="normal" style="background-color: #ccc;">Стандартный</button>
+                <button class="theme-switcher" data-theme="theme-wb" title="Черно-белая">Черно-белый</button>
+                <button class="theme-switcher" data-theme="theme-bw" title="Бело-черная">Бело-черный</button>
+            </div>
         </div>
-    </header>
+    </div>
 
     <main>
         <h1 class="page-title-block">Интерактивный подбор психолога</h1>
 
         <?php if (!$show_results): ?>
-            <!-- Выводим тест -->
             <p>Ответьте на вопросы анкеты. Наша система проанализирует ваши ответы и предложит 3 наиболее подходящих
                 специалистов центра.</p>
 
@@ -137,22 +152,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <form action="quiz.php" method="POST">
 
                     <fieldset>
-                        <legend>Шаг 1 из 5: Что вас беспокоит в первую очередь?</legend>
-                        <p>Выберите одну или несколько тем:</p>
-                        <label><input type="checkbox" name="quiz_issue[]" value="anxiety"> Тревога, страхи, панические
-                            атаки</label><br>
-                        <label><input type="checkbox" name="quiz_issue[]" value="relations"> Проблемы в отношениях (партнер,
-                            семья, коллеги)</label><br>
-                        <label><input type="checkbox" name="quiz_issue[]" value="children"> Воспитание детей или детские
-                            травмы</label><br>
-                        <label><input type="checkbox" name="quiz_issue[]" value="self_esteem"> Неуверенность в себе,
-                            проблемы с самооценкой</label><br>
-                        <label><input type="checkbox" name="quiz_issue[]" value="burnout"> Выгорание, упадок сил, потеря
-                            мотивации</label>
+                        <legend>№1 Что вас беспокоит в первую очередь?</legend>
+                        <p>Выберите одну или несколько тем, которые вызывают наибольшее беспокойство:</p>
+                        <?php if (!empty($issues)): ?>
+                            <?php foreach ($issues as $issue): ?>
+                                <div style="margin-bottom: 10px;">
+                                    <label>
+                                        <input type="checkbox" name="quiz_issue[]" value="<?= htmlspecialchars($issue['id']) ?>"
+                                            id="issue_<?= htmlspecialchars($issue['id']) ?>">
+                                        <span>
+                                            <?php echo htmlspecialchars($issue['description']); ?>
+                                        </span>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="system-notification">В настоящее время в системе не зафиксировано проблемных областей.</p>
+                        <?php endif; ?>
                     </fieldset>
 
                     <fieldset>
-                        <legend>Шаг 2 из 5: Какого пола специалиста вы предпочитаете?</legend>
+                        <legend>№2 Какого пола специалиста вы предпочитаете?</legend>
                         <label><input type="radio" name="quiz_gender" value="no_matter" checked> Мне не важен пол
                             специалиста</label><br>
                         <label><input type="radio" name="quiz_gender" value="female"> Я хочу работать с женщиной</label><br>
@@ -160,17 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </fieldset>
 
                     <fieldset>
-                        <legend>Шаг 3 из 5: Был ли у вас прошлый опыт психотерапии?</legend>
-                        <label><input type="radio" name="quiz_experience" value="none" checked> Нет, это будет мой первый
-                            раз</label><br>
-                        <label><input type="radio" name="quiz_experience" value="short"> Да, был краткосрочный опыт
-                            (несколько сессий)</label><br>
-                        <label><input type="radio" name="quiz_experience" value="long"> Да, проходил(а) длительную терапию в
-                            прошлом</label>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Шаг 4 из 5: Какого возраста специалиста вы ищете?</legend>
+                        <legend>№3 Какого возраста специалиста вы ищете?</legend>
                         <label><input type="radio" name="quiz_age" value="any" checked> Любой возраст</label><br>
                         <label><input type="radio" name="quiz_age" value="young"> До 35 лет (молодой специалист)</label><br>
                         <label><input type="radio" name="quiz_age" value="experienced"> Старше 35 лет (более опытный
@@ -178,7 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </fieldset>
 
                     <fieldset>
-                        <legend>Шаг 5 из 5: Какой формат встреч вам подходит?</legend>
+                        <legend>№4 Какой формат встреч вам подходит?</legend>
                         <label><input type="radio" name="quiz_format" value="online"> Только онлайн (видеосвязь)</label><br>
                         <label><input type="radio" name="quiz_format" value="offline"> Офлайн (личный визит в кабинет
                             центра)</label><br>
@@ -197,41 +207,52 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <h2 class="section-header">Результаты вашего подбора (Топ-3 специалиста)</h2>
                 <p>На основе ваших ответов система подобрала следующих терапевтов:</p>
 
-                <ul class="specialist-list">
+                <!-- Вместо <ul>...</ul> -->
+                <div class="specialist-grid">
                     <?php foreach ($top_three as $index => $therapist): ?>
-                        <li class="specialist-card list-item">
-                            <h3 class="specialist-name"><?php echo htmlspecialchars($therapist['name']); ?></h3>
-                            <p><strong class="specialty">Стаж:</strong>
-                                <?php echo htmlspecialchars($therapist['experience_years']); ?> лет |
-                                <strong class="price-tag">От <?php echo number_format($therapist['base_price'], 0, ',', ' '); ?>
-                                    ₽</strong>
-                            </p>
-                            <p><strong class="specialty">Специализация:</strong>
-                                <?php echo htmlspecialchars($therapist['role']); ?></p>
-                            <p><strong class="specialty">Форматы сессии:</strong>
+                        <article class="expert-card">
+                            <div class="photo-block">
                                 <?php
-                                if (empty($therapist['format'])) {
-                                    echo 'Не указаны';
-                                } else {
-                                    // Используем implode для объединения элементов массива через запятую и "или"
-                                    $formats_text = implode(' и ', array_map(function ($format) {
-                                        return ucwords(str_replace('-', ' ', $format)); // Преобразует 'online' в 'Online'
-                                    }, $therapist['format']));
-                                    echo htmlspecialchars($formats_text);
-                                }
+                                // Получаем путь к изображению из данных терапевта
+                                $image_path = htmlspecialchars($therapist['image_path']);
+
+                                // Определяем источник изображения: используем сохраненный путь, если он не пуст.
+                                // Если путь пуст или некорректен, используем запасной 'images/default.jpg'.
+                                $src = !empty($image_path) ? $image_path : 'images/default.jpg';
+                                echo '<img src="' . $src . '" alt="Фото профиля ' . htmlspecialchars($therapist['name']) . '">';
                                 ?>
-                            </p>
-                            <p class="specialty-info"><strong class="specialty-info">Почему подходит:</strong>
-                                <?php echo htmlspecialchars($therapist['match_description']); ?></p>
+                            </div>
+                            <div class="details">
+                                <h3 class="specialist-name"><?php echo htmlspecialchars($therapist['name']); ?></h3>
+                                <p><strong class="specialty">Специализация:</strong>
+                                    <?php echo htmlspecialchars($therapist['role']); ?></p>
+                                <p class="meta-info">Опыт: <?php echo htmlspecialchars($therapist['experience_years']); ?> лет •
+                                    От
+                                    <?php echo number_format((float) $therapist['base_price'], 0, ',', ' ') . ' ₽'; ?> / сессия
+                                </p>
+                                <p class="specialty-info"><strong>Форматы сессии:</strong>
+                                    <?php
+                                    if (empty($therapist['format'])) {
+                                        echo 'Не указаны';
+                                    } else {
+                                        $formats_text = implode(' и ', array_map(function ($format) {
+                                            return ucwords(str_replace('-', ' ', $format));
+                                        }, $therapist['format']));
+                                        echo htmlspecialchars($formats_text);
+                                    }
+                                    ?>
+                                </p>
+                                <p class="match-description"><strong>Почему подходит:</strong>
+                                    <?php echo htmlspecialchars($therapist['match_description']); ?></p>
 
-                            <button type="button" class="btn specialist-booking-trigger"
-                                onclick="openBookingModal('<?php echo htmlspecialchars($therapist['id']); ?>')">
-                                Записаться на консультацию
-                            </button>
-
-                        </li>
+                                <button type="button" class="btn specialist-booking-trigger"
+                                    onclick="openBookingModal('<?php echo htmlspecialchars($therapist['id']); ?>')">
+                                    Записаться на консультацию
+                                </button>
+                            </div>
+                        </article>
                     <?php endforeach; ?>
-                </ul>
+                </div>
 
                 <div style="margin-top: 30px; display: flex; gap: 15px;">
                     <a href="quiz.php" class="btn secondary-action-btn">Пройти тест заново</a>
@@ -242,7 +263,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </main>
 
     <footer class="page-footer">
-        <div style="max-width: 1200px; margin: 0 auto; padding-top: 30px;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 30px 0; text-align: center;">
             <p>© 2026 Психологический центр "Гармония". Все права защищены.</p>
         </div>
     </footer>
@@ -286,7 +307,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script>
         function openBookingModal(therapistId) {
 
-            // После нажатия на кнопку Записаться на консультацию мы сохраняем идентификатор психолога
+            // После нажатия на кнопку "Записаться на консультацию" мы сохраняем идентификатор психолога
             document.getElementById('bookedTherapistId').value = therapistId;
 
             // Сброс формы и заполнение заголовка
@@ -367,10 +388,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         function submitAppointmentData(data) {
             const bookingForm = document.getElementById('bookingForm');
-
-            // Для отладки
-            console.log("Данные, которые отправляются на сервер:", data);
-            console.log("Перевод в JSON", JSON.stringify(data));
 
             // Отправляем данные на PHP обработчик
             fetch('submit_appointment.php', {

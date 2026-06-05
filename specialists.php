@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('PER_PAGE')) {
-    define('PER_PAGE', 10);
+    define('PER_PAGE', 15);
 }
 
 require_once 'db.php';
@@ -11,6 +11,8 @@ $where_clauses = [];
 $is_filtering = false;
 
 // Собираем все активные фильтры и возвращаем массив параметров 
+// Важно, я решил убрать ввод фильтра по минимальной цене (оставил только максимальную), оставил обработку min_price в коде, если потребуется её вернуть
+
 function collect_filters($get)
 {
     $filters = [];
@@ -76,13 +78,11 @@ try {
     error_log("Ошибка при подсчете специалистов: " . $e->getMessage());
 }
 
-
 // Рассчитываем количество страниц.
 $total_pages = ceil($total_therapists / PER_PAGE);
 
 // Получаем текущую страницу (по умолчанию 1)
 $current_page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
-
 
 // Рассчитываем смещение и лимит для SQL
 $offset = max(0, ($current_page - 1) * PER_PAGE);
@@ -91,7 +91,6 @@ $limit = PER_PAGE;
 // Формирование финального запроса для вывода специалистов, где LIMIT - выводит N количество строк, а OFFSET - смещает таблицу на N строк
 // Например, для списка элементов до 5 шт на одной страницы LIMIT будет 5, а OFFSET (Номер страницы - 1) * 5
 $sql = "SELECT t.* FROM therapists t $where_sql LIMIT :limit OFFSET :offset";
-
 
 try {
     $params[':limit'] = $limit;
@@ -125,23 +124,20 @@ try {
 
 <body class="page-specialists">
 
-    <header>
-        <div>
-            <strong>ГАРМОНИЯ</strong>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Главная</a></li>
-                    <li><a href="specialists.php" class="active-nav">Наши специалисты</a></li>
-                    <li><a href="prices.php">Услуги и цены</a></li>
-                    <li><a href="quiz.php">Подбор психолога</a></li>
-                    <li><a href="blog.html">Блог</a></li>
-                    <li><a href="contacts.html">Контакты и FAQ</a></li>
-                    <li><a href="dashboard.html">Личный кабинет</a></li>
-                    <li><a href="sitemap.html">Карта сайта</a></li>
-                </ul>
-            </nav>
+    <?php include 'header.php'; ?>
+    <!-- Переключение режим доступности по ГОСТу-->
+    <div id="accessibility-widget" class="bvi-panel">
+        <div class="bvi-panel-container">
+            <button class="accessibility-toggle-btn" data-theme="gov-standard-switcher"
+                style="background: #eee; color: var(--text-color);">Настроить доступность</button>
+            <div id="theme-selection-container" class="bvi-panel-container" style="display: none;">
+                <span style="font-weight: 600; color: var(--text-color);">Выберите тему:</span>
+                <button class="theme-switcher" data-theme="normal" style="background-color: #ccc;">Стандартный</button>
+                <button class="theme-switcher" data-theme="theme-wb" title="Черно-белая">Черно-белый</button>
+                <button class="theme-switcher" data-theme="theme-bw" title="Бело-черная">Бело-черный</button>
+            </div>
         </div>
-    </header>
+    </div>
 
     <main>
         <h1 class="page-title-block">Наши специалисты</h1>
@@ -161,45 +157,47 @@ try {
             </div>
         <?php endif; ?>
 
-        <!-- Храним две колонки -->
         <div class="content-layout">
-            <!-- Левая колонка (Специалисты) -->
+            <!-- Список специалистов -->
             <section class="main-content">
                 <?php if (count($therapists_database) === 0): ?>
                     <p>К сожалению, по заданным критериям специалисты не найдены.</p>
                 <?php else: ?>
                     <?php foreach ($therapists_database as $therapist): ?>
-                        <!-- Карточка специалиста -->
                         <article class="expert-card">
-                            <!-- Блок фото (добавлю потом) -->
-                            <div class="photo">[Фото]</div>
+                            <div class="photo">
+                                <?php
+                                // Получаем путь к изображению из данных терапевта
+                                $image_path = htmlspecialchars($therapist['image_path']);
+
+                                // Определяем источник изображения: используем сохраненный путь, если он не пуст.
+                                // Если путь пуст или некорректен, используем запасной 'images/default.jpg'.
+                                $src = !empty($image_path) ? $image_path : 'images/default.jpg';
+                                echo '<img src="' . $src . '" alt="Фото профиля ' . htmlspecialchars($therapist['name']) . '">';
+                                ?>
+                            </div>
 
                             <div class="details">
                                 <h3 class="specialist-name"><?php echo htmlspecialchars($therapist['name']); ?></h3>
-
                                 <p><strong class="specialty">Специализация:
                                     </strong><?php echo htmlspecialchars($therapist['role']); ?>
                                 </p>
                                 <p>Опыт: <?php echo htmlspecialchars($therapist['experience_years']); ?> лет • От
                                     <?php echo number_format((float) $therapist['base_price'], 0, '', ' ') . ' ₽'; ?> / сессия
                                 </p>
-
-                                <!-- НОВОЕ: Формат сессии -->
                                 <p><strong class="specialty">Форматы сессии:</strong>
-                                    <?php 
-                                        if (empty($therapist['format'])) {
-                                            echo 'Не указаны';
-                                        } else {
-                                            // Преобразуем теги типа 'online' в читаемый текст и объединяем их "и"
-                                            $formats_text = implode(' и ', array_map(function($format) {
-                                                return ucwords(str_replace('-', ' ', $format)); 
-                                            }, $therapist['format']));
-                                            echo htmlspecialchars($formats_text);
-                                        }
+                                    <?php
+                                    if (empty($therapist['format'])) {
+                                        echo 'Не указаны';
+                                    } else {
+                                        // Преобразуем теги типа 'online' в читаемый текст и объединяем их "и"
+                                        $formats_text = implode(' и ', array_map(function ($format) {
+                                            return ucwords(str_replace('-', ' ', $format));
+                                        }, $therapist['format']));
+                                        echo htmlspecialchars($formats_text);
+                                    }
                                     ?>
                                 </p>
-
-                                <!-- Кнопка для записи на консультацию -->
                                 <button type="button" class="btn specialist-booking-trigger"
                                     onclick="openBookingModal('<?php echo htmlspecialchars($therapist['id']); ?>')">
                                     Записаться на консультацию
@@ -213,14 +211,13 @@ try {
             </section>
 
 
-            <!-- Правая колонка (Поиск по имени и стоимости + Ссылка на тест) -->
+            <!-- Фильтр + ссылка на тест -->
             <aside style="flex: 1; min-width: 300px;">
                 <div class="filter-widget" id="search-block">
                     <h3>Поиск специалиста</h3>
 
                     <form method="GET" action="specialists.php">
                         <?php
-                        // Сохранение текущего номера страницы
                         $page_param = 'page=' . $current_page;
                         ?>
                         <input type="hidden" name="page" value="<?php echo $current_page; ?>">
@@ -229,33 +226,25 @@ try {
                             Фамилия:</label>
                         <input type="text" id="search_name" name="search_name" placeholder="Например, Иванов или Анна"
                             value="<?php echo htmlspecialchars($_GET['search_name'] ?? ''); ?>">
-
                         <div class="filter-group">
-
                             <label for="min_price"
                                 style="font-weight: bold; display: block; margin-top: 30px; margin-bottom: 12px;">Стоимость
-                                сессии:</label>
-                            <label for="min_price">Минимальная цена (от):</label>
-                            <input type="number" id="min_price" name="min_price" placeholder="Например, 1000"
-                                value="<?php echo htmlspecialchars($_GET['min_price'] ?? ''); ?>">
-
-                            <label for="max_price" style="margin-top: 15px;">Максимальная цена (до):</label>
+                                сессии до:</label>
                             <input type="number" id="max_price" name="max_price" placeholder="Например, 7000"
                                 value="<?php echo htmlspecialchars($_GET['max_price'] ?? ''); ?>">
-
                         </div>
-
                         <button type="submit" style="width: 100%; margin-top: 30px; display: block;">Найти</button>
                     </form>
 
                     <div style="margin-top: 25px; text-align: center;">
-                        <label for="search_name" style="font-weight: bold; display: block; margin-top: 20px; text-align: left;">Не знаете кого выбрать?</label>
+                        <label for="search_name"
+                            style="font-weight: bold; display: block; margin-top: 20px; text-align: left;">Не знаете
+                            кого выбрать?</label>
                         <p style="text-align: left;">Пройдите тест и мы подберем вам нужного психолога.</p>
                         <a href="quiz.php" class="btn" style="width: 100%; display: block; text-align: center;">
                             Пройти тест
                         </a>
                     </div>
-
                 </div>
             </aside>
 
@@ -277,7 +266,7 @@ try {
     </main>
 
     <footer class="page-footer">
-        <div style="max-width: 1200px; margin: 0 auto; padding-top: 30px;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 30px 0; text-align: center;">
             <p>© 2026 Психологический центр "Гармония". Все права защищены.</p>
         </div>
     </footer>

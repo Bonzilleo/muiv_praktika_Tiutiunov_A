@@ -5,7 +5,7 @@ require_once 'db.php';
 
 $services = [];
 try {
-    // Запрос: Извлекаем все поля, включая format_type, которые будут использоваться для логики
+    // Запрос: Извлекаем все поля, включая format_type
     $sql = "SELECT * FROM services ORDER BY service_id ASC";
     $stmt = $pdo->query($sql);
     $services = $stmt->fetchAll();
@@ -47,7 +47,7 @@ function getFormatDisplay($format_type)
 {
     // Если формат проведения = тест, выводим соответствующий текст
     if (strtolower(trim($format_type)) === 'test') {
-        return '<span style="color: var(--primary-color); font-weight: bold;">Интерактивный тест на сайте</span>';
+        return '<span style="color: var(--primary-color); font-weight: bold;">Интерактивный тест</span>';
     } elseif (strtolower(trim($format_type)) === 'online' || strtolower(trim($format_type)) === 'offline' || strtolower(trim($format_type)) === 'both') {
         return '<span style="color: var(--primary-color); font-weight: bold;">Онлайн / Офлайн</span>';
     } else {
@@ -69,23 +69,20 @@ function getFormatDisplay($format_type)
 
 <body>
 
-    <header>
-        <div>
-            <strong>ГАРМОНИЯ</strong>
-            <nav>
-                <ul>
-                    <li><a href="index.php">Главная</a></li>
-                    <li><a href="specialists.php">Наши специалисты</a></li>
-                    <li><a href="prices.php" style="color: var(--accent-color); font-weight: 600;">Услуги и цены</a></li>
-                    <li><a href="quiz.php">Подбор психолога</a></li>
-                    <li><a href="blog.html">Блог</a></li>
-                    <li><a href="contacts.html">Контакты и FAQ</a></li>
-                    <li><a href="dashboard.html">Личный кабинет</a></li>
-                    <li><a href="sitemap.html">Карта сайта</a></li>
-                </ul>
-            </nav>
+    <?php include 'header.php'; ?>
+    <!-- Переключение режим доступности по ГОСТу-->
+    <div id="accessibility-widget" class="bvi-panel">
+        <div class="bvi-panel-container">
+            <button class="accessibility-toggle-btn" data-theme="gov-standard-switcher"
+                style="background: #eee; color: var(--text-color);">Настроить доступность</button>
+            <div id="theme-selection-container" class="bvi-panel-container" style="display: none;">
+                <span style="font-weight: 600; color: var(--text-color);">Выберите тему:</span>
+                <button class="theme-switcher" data-theme="normal" style="background-color: #ccc;">Стандартный</button>
+                <button class="theme-switcher" data-theme="theme-wb" title="Черно-белая">Черно-белый</button>
+                <button class="theme-switcher" data-theme="theme-bw" title="Бело-черная">Бело-черный</button>
+            </div>
         </div>
-    </header>
+    </div>
 
     <main>
         <h1>Услуги и цены</h1>
@@ -100,7 +97,6 @@ function getFormatDisplay($format_type)
                         <th>Вид услуги</th>
                         <th>Формат работы</th>
                         <th>Длительность</th>
-                        <th>Стоимость</th>
                         <th>Действие</th>
                     </tr>
                 </thead>
@@ -118,8 +114,6 @@ function getFormatDisplay($format_type)
                                 <td class="service-duration">
                                     <?php echo htmlspecialchars($service['duration_minutes']); ?> минут
                                 </td>
-                                <td class="service-cost"><?php echo formatPrice($service['min_cost'], $service['max_cost']); ?>
-                                </td>
                                 <td class="service-action">
                                     <?php
                                     if (strtolower(trim($service['format_type'])) === 'test') {
@@ -127,7 +121,7 @@ function getFormatDisplay($format_type)
                                     } else {
                                         $target_url = 'specialists.php';
                                     }
-                                    echo '<a href="' . htmlspecialchars($target_url) . '" class="button-link">' . htmlspecialchars($service['action_text']) . '</a>';
+                                    echo '<a href="' . htmlspecialchars($target_url) . '" class="btn">' . htmlspecialchars($service['action_text']) . '</a>';
                                     ?>
                                 </td>
                             </tr>
@@ -181,8 +175,8 @@ function getFormatDisplay($format_type)
         </section>
     </main>
 
-    <footer>
-        <div>
+    <footer class="page-footer">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 30px 0; text-align: center;">
             <p>© 2026 Психологический центр "Гармония". Все права защищены.</p>
         </div>
     </footer>
