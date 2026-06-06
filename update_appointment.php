@@ -45,7 +45,6 @@ try {
     // Если статус cancelled, обязательно нужен комментарий
     if ($new_status === 'cancelled') {
         if (empty(trim($comment))) {
-            $pdo->rollBack();
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Для отмены заявки необходимо указать причину в поле "Комментарий".']);
             exit();
@@ -56,7 +55,6 @@ try {
     if ($new_status === 'confirmed') {
         // Теперь проверяем, что переменная $formatted_datetime содержит валидную дату.
         if (empty($formatted_datetime) || !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $formatted_datetime)) {
-            $pdo->rollBack();
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Для подтверждения заявки необходимо указать корректную дату и время.']);
             exit();
@@ -68,7 +66,6 @@ try {
     $stmt_check->execute([':id' => $appointment_id, ':therapist_id' => $_SESSION['therapist_id']]);
 
     if (!$stmt_check->fetch()) {
-        $pdo->rollBack();
         die("Ошибка безопасности: Вы не являетесь владельцем этой заявки.");
     }
 
@@ -91,11 +88,9 @@ try {
     ]);
 
     if ($success) {
-        $pdo->commit();
         header('Content-Type: application/json');
         echo json_encode(['success' => true, 'message' => "Статус заявки успешно изменен"]);
     } else {
-        $pdo->rollBack();
         http_response_code(500); 
         echo json_encode(['success' => false, 'message' => "Не удалось изменить статус заявки"]);
     }
