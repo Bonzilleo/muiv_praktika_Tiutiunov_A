@@ -1,3 +1,8 @@
+<?php
+session_start();
+http_response_code(404);
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 
