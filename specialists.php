@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('PER_PAGE')) {
-    define('PER_PAGE', 15);
+    define('PER_PAGE', 10);
 }
 
 require_once 'db.php';

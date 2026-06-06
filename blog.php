@@ -2,21 +2,23 @@
 
 require_once 'db.php';
 
+$categories_list = [];
+$news_posts = [];
 
-function get_all_categories($pdo)
-{
-    try {
-        $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-        error_log("Ошибка при получении категорий: " . $e->getMessage());
-        // Возвращаем пустой массив в случае ошибки
-        return []; 
-    }
+// Получение всех категорий для фильтрации
+try {
+    $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC");
+    $categories_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    error_log("Ошибка при получении категорий: " . $e->getMessage());
+    // Возвращаем пустой массив в случае ошибки
+    return [];
 }
 
-function fetch_news($pdo, $category_id = null)
-{
+// Определяем, какой фильтр активен
+$current_filter_id = $_GET['category'] ?? null;
+
+try {
     $sql = "SELECT 
                 n.*, 
                 t.name AS author_name
@@ -26,11 +28,11 @@ function fetch_news($pdo, $category_id = null)
     $params = [];
 
     // Если фильтр активен, добавляем к переменной $sql JOIN через таблицу связей
-    if ($category_id) {
+    if ($current_filter_id) {
         $sql .= " 
             JOIN news_categories nc ON n.id = nc.news_id
             WHERE nc.category_id = :cat_id";
-        $params[':cat_id'] = $category_id;
+        $params[':cat_id'] = $current_filter_id;
     }
 
     $sql .= " ORDER BY n.created_at DESC";
@@ -65,18 +67,8 @@ function fetch_news($pdo, $category_id = null)
         $final_posts[] = $news_data;
     }
 
-    return array_values($final_posts);
-}
+    $news_posts = array_values($final_posts);
 
-// Получение всех категорий для фильтрации
-$categories_list = get_all_categories($pdo);
-
-// Определяем, какой фильтр активен
-$current_filter_id = $_GET['category'] ?? null;
-
-try {
-    // Передаем id категории в функцию fetch_news
-    $news_posts = fetch_news($pdo, $current_filter_id);
 } catch (Exception $e) {
     $news_posts = [];
     error_log("Ошибка при загрузке новостей: " . $e->getMessage());

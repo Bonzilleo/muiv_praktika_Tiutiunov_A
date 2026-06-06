@@ -15,6 +15,17 @@ try {
     $featured_specialists = [];
 }
 
+$news_posts = [];
+try {
+    $sql = "SELECT n.*, t.name AS author_name FROM news n LEFT JOIN therapists t ON n.author_id = t.id ORDER BY n.created_at DESC LIMIT 3";
+    $stmt = $pdo->query($sql);
+    $news_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (\PDOException $e) {
+    error_log("News loading error: " . $e->getMessage());
+    $news_posts = [];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -125,6 +136,57 @@ try {
                 <cite>Александр и Ольга</cite>
             </blockquote>
         </section>
+
+        <section id="news-feed" style="margin-top: 50px;">
+            <h2 class="section-header">Последние статьи блога</h2>
+
+            <div class="news-list-container"
+                style="display: flex; gap: 30px; justify-content: space-between; margin-top: 30px;">
+                <?php if (count($news_posts) > 0): ?>
+                    <?php foreach ($news_posts as $post): ?>
+                        <article class="blog-excerpt" style="flex: 1; max-width: 30%; border: none; padding: 0;">
+                            <div class="article-image photo" style="margin-bottom: 15px;">
+                                <?php
+                                $image_path = $post['featured_image'] ?? '';
+                                $src = '';
+
+                                if (!empty(trim($image_path))) {
+                                    $src = $image_path;
+                                }
+                                ?>
+                                <img src="<?php echo htmlspecialchars($src); ?>" alt=" ">
+                            </div>
+
+                            <h3 style="margin-top: 0; font-size: 1.2rem; color: var(--primary-color);">
+                                <?php echo htmlspecialchars($post['title']); ?></h3>
+
+                            <div style="font-size: 0.9rem; color: #777; margin-bottom: 15px;">
+                                <span class="meta-item">Автор: <strong
+                                        style="color: var(--primary-color);"><?php echo htmlspecialchars($post['author_name']); ?></strong></span><br>
+                                <?php
+                                $date_display = 'Дата не указана';
+                                if (!empty($post['created_at'])) {
+                                    $timestamp = strtotime($post['created_at']);
+                                    $date_display = date('d.m.Y', $timestamp);
+                                }
+                                ?>
+                                <span class="meta-item">Дата:
+                                    <?php echo htmlspecialchars($date_display); ?></span>
+                            </div>
+
+                            <p><?php echo htmlspecialchars($post['content_snippet']); ?></p>
+
+                            <!-- Кнопка перехода на полную статью -->
+                            <a href="article.php?id=<?php echo htmlspecialchars($post['id']); ?>" class="btn btn-small"
+                                style="display: inline-block; margin-top: 10px;">Читать полностью</a>
+                        </article>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>В настоящее время новых статей нет. Следите за нашими обновлениями!</p>
+                <?php endif; ?>
+            </div>
+        </section>
+
     </main>
 
     <footer class="page-footer">
