@@ -48,7 +48,11 @@ function getFormatDisplay($format_type)
     // Если формат проведения = тест, выводим соответствующий текст
     if (strtolower(trim($format_type)) === 'test') {
         return '<span style="color: var(--primary-color); font-weight: bold;">Интерактивный тест</span>';
-    } elseif (strtolower(trim($format_type)) === 'online' || strtolower(trim($format_type)) === 'offline' || strtolower(trim($format_type)) === 'both') {
+    } elseif (strtolower(trim($format_type)) === 'online') {
+        return '<span style="color: var(--primary-color); font-weight: bold;">Онлайн</span>';
+    } elseif (strtolower(trim($format_type)) === 'offline') {
+        return '<span style="color: var(--primary-color); font-weight: bold;">Офлайн</span>';
+    } elseif (strtolower(trim($format_type)) === 'both') {
         return '<span style="color: var(--primary-color); font-weight: bold;">Онлайн / Офлайн</span>';
     } else {
         return ucfirst(strtolower(str_replace('|', '/', $format_type))) . ' (Проверка данных)';
