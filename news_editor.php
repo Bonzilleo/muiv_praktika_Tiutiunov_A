@@ -3,21 +3,15 @@
 session_start();
 require_once 'db.php';
 
-// Авторизация пользователя
-
+// Копируем логику определения роли и пользователя из header.php
 $is_logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
-$user_role = 'Пользователь';
+$user_role = '';
 $current_therapist_id = null;
 
 if ($is_logged_in) {
-    // Логика определения роли и ID: ПСИХОЛОГ > АДМИН > Пользователь
     if (isset($_SESSION['is_therapist']) && $_SESSION['is_therapist'] === true) {
-        $user_role = 'Психолог-консультант'; // Используем имя роли из сессии
-        $current_therapist_id = $_SESSION['therapist_id'] ?? null; // *** ИСПОЛЬЗУЕМ ТЕРАПИСТОВ ID ***
-    } elseif (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
-        $user_role = 'Админ-пользователь';
-    } else {
-        $user_role = 'Пользователь';
+        $user_role = 'Психолог-консультант';
+        $current_therapist_id = $_SESSION['therapist_id'] ?? null;
     }
 }
 
@@ -48,7 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $article_id = $_POST['article_id'] ?? null;
 
     if ($user_role == 'Психолог-консультант' && $article_id) {
-        //Режим редактирования: Психолог может править, только если author_id совпадает с его id в таблице therapists.
+        // Режим редактирования: Психолог может править, только если author_id совпадает с его id в таблице therapists.
+        // Пользователь не сможет зайти отредактировать чужую статью через страницу news_editor.php
         $stmt = $pdo->prepare("SELECT author_id FROM news WHERE id = :id");
         $stmt->execute([':id' => $article_id]);
         $existing_article = $stmt->fetch(PDO::FETCH_ASSOC);

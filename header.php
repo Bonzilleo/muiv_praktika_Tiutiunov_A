@@ -11,6 +11,9 @@ $display_name = '';
 
 if ($is_logged_in) {
     // Определяем имя пользователя, если есть имя (например из таблицы therapists) подставляем его, иначе - логин.
+    // Выводим display_name Пользователь только в том случае, если при авторизации пользователь не определился как психолог или админ
+    // но такой ситуации возникать на уровне пользователь не должно - 
+
     if (isset($_SESSION['profile_name'])) {
         $display_name = $_SESSION['profile_name'];
     } elseif (isset($_SESSION['username'])) {
@@ -21,7 +24,7 @@ if ($is_logged_in) {
 
     // Определяем роль: если пользователь есть в таблице therapists - ставим роль Психолог-консультант,
     // если пользователя нет, но есть пометка is_admin в таблице users - ставим роль Админ-пользователь
-    // иначе - просто Пользователь
+    // иначе - просто Пользователь, но такой ситуации возникать на уровне пользователь не должно - пользователь всегда психолог или админ
     if (isset($_SESSION['is_therapist']) && $_SESSION['is_therapist'] === true) {
         $user_role = 'Психолог-консультант';
         $current_therapist_id = $_SESSION['therapist_id'] ?? null;
@@ -67,17 +70,10 @@ if ($is_logged_in) {
         </div>
 
         <script>
-            // ==============================================================
-            // ГЛОБАЛЬНЫЙ СКРИПТ УПРАВЛЕНИЯ ДОСТУПНОСТЬЮ (GOST/WCAG)
-            // Этот скрипт должен быть в header.php для работы на всех страницах!
-            // ==============================================================
 
             const bodyElement = document.body;
-            const themeContainer = document.getElementById('theme-selection-container'); // Предполагаем, что этот ID есть только на index.php (но не повредит)
+            const themeContainer = document.getElementById('theme-selection-container');
 
-            /**
-             * Сбрасывает все классы доступности с тега <body> и Local Storage.
-             */
             function resetAccessibilityMode() {
                 // Удаляем главный класс ГОСТ
                 bodyElement.classList.remove('is-visually-impaired');
@@ -90,11 +86,6 @@ if ($is_logged_in) {
                 localStorage.removeItem('accessibilityMode');
             }
 
-
-            /**
-             * Переключает класс доступности на теге <body/> и применяет выбранную тему.
-             * @param {string} themeClass - Класс темы (theme-wb, theme-bw, theme-bb) или 'normal'.
-             */
             function setAccessibilityMode(themeClass) {
                 // Сначала сбрасываем все предыдущие настройки для чистоты
                 resetAccessibilityMode();
@@ -104,7 +95,7 @@ if ($is_logged_in) {
                     return;
                 }
 
-                // Если выбран любой из GOST-классов, применяем их к тегу body
+                // Если выбран любой из специальных схем, применяем их к тегу body
                 bodyElement.classList.add('is-visually-impaired');
                 bodyElement.classList.add(themeClass);
                 console.log(`Установлен режим слабовидящих с темой: ${themeClass}`);
@@ -113,18 +104,14 @@ if ($is_logged_in) {
                 localStorage.setItem('accessibilityMode', themeClass);
             }
 
-
-            /** 
-             * Инициализация обработчиков событий на ВСЕХ страницах.
-             */
             document.addEventListener('DOMContentLoaded', () => {
 
-                // 1. ПРОВЕРКА СОХРАНЕННОГО СОСТОЯНИЯ: Запускается при загрузке каждой страницы
+                // Проверка состояния, запускается при загрузке каждой страницы
                 const savedTheme = localStorage.getItem('accessibilityMode') || 'normal';
                 setAccessibilityMode(savedTheme);
 
 
-                // 2. НАЗНАЧЕНИЕ ОБРАБОТЧИКОВ КНОПКИ "ГОСТ ДОСТУПНОСТЬ" (Исправлено)
+                // Обработчик кнопки "Доступность"
                 const govStandardButton = document.querySelector('.accessibility-toggle-btn[data-theme="gov-standard-switcher"]');
                 if (govStandardButton) {
                     govStandardButton.addEventListener('click', () => {
@@ -136,27 +123,26 @@ if ($is_logged_in) {
                             if (isCurrentlyHidden) {
                                 // Если спрятан, показываем его
                                 themeSelectionContainer.style.display = 'block';
-                                govStandardButton.textContent = "Скрыть настройки доступности"; // Изменяем текст для лучшего UX
+                                govStandardButton.textContent = "Скрыть настройки доступности"; 
                             } else {
                                 // Если виден, прячем его
                                 themeSelectionContainer.style.display = 'none';
-                                govStandardButton.textContent = "Настроить доступность"; // Возвращаем исходный текст
+                                govStandardButton.textContent = "Настроить доступность";
                             }
                         }
                     });
                 }
 
-                // 3. НАЗНАЧЕНИЕ ОБРАБОТЧИКОВ ДЛЯ ВСЕХ КНОПОК ТЕМ (самый важный блок)
+                // Обработчик для всех кнопок тем
                 document.querySelectorAll('.theme-switcher').forEach(button => {
                     button.addEventListener('click', function () {
                         const selectedTheme = this.getAttribute('data-theme');
-                        setAccessibilityMode(selectedTheme); // Вызываем нашу функцию смены темы
+                        setAccessibilityMode(selectedTheme);
                     });
                 });
             });
 
         </script>
-        <!-- КОНЕЦ ГЛОБАЛЬНОГО СТРОКА ИНТЕРАКТИВНОСТИ -->
 </header>
 
 

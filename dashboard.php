@@ -9,41 +9,6 @@
 session_start();
 
 require_once 'db.php';
-
-// Определяем роль пользователя
-$is_logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
-$user_role = '';
-$display_name = '';
-$current_therapist_id = null;
-
-// Объявляем $message здесь, чтобы он был доступен во всех блоках.
-$message = '';
-
-if ($is_logged_in) {
-    // Определяем имя пользователя, если есть имя (например из таблицы therapists) подставляем его, иначе - логин.
-    if (isset($_SESSION['profile_name'])) {
-        $display_name = $_SESSION['profile_name'];
-    } elseif (isset($_SESSION['username'])) {
-        $display_name = htmlspecialchars($_SESSION['username']);
-    } else {
-        $display_name = 'Пользователь';
-    }
-
-    // Определяем роль: если пользователь есть в таблице therapists - ставим роль Психолог-консультант,
-    // если пользователя нет, но есть пометка is_admin в таблице users - ставим роль Админ-пользователь
-    // иначе - просто Пользователь
-    if (isset($_SESSION['is_therapist']) && $_SESSION['is_therapist'] === true) {
-        $user_role = 'Психолог-консультант';
-        $current_therapist_id = $_SESSION['therapist_id'] ?? null;
-
-    } elseif (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
-        $user_role = 'Админ-пользователь';
-        $message = '';
-    } else {
-        $user_role = 'Пользователь';
-        $current_therapist_id = null;
-    }
-}
 ?>
 
 <!DOCTYPE html>

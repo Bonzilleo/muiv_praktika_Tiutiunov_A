@@ -211,6 +211,12 @@ header>.container div[style*="display: flex; justify-content: space-between; ali
     justify-content: center;
 }
 
+.container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+}
+
 /* Повторно используем стили из предыдущего запроса, но делаем их более мягкими */
 .main-menu li {
     margin-right: 15px;
